@@ -1,0 +1,45 @@
+version: '3.1'
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+services:
+
+  mongodb:
+    container_name: mongodb
+    image: mongo:4.2
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      # create app dir using vscode instead of 
+      # docker creating it automatically.
+      # otherwise EACESS error is caused.
+      - ./app:/app  
+      - ./mongodbdata:/data/mongodb
+      # - ./log:/dev/
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: users
+      MONGODB_DATA_DIR: /data/mongodb
+      # MONDODB_LOG_DIR: /dev/null
+    networks:
+      - backend
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongox
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongodb:27017/
+    depends_on:
+      - mongodb
+    networks:
+      - backend 
